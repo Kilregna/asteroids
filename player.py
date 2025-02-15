@@ -23,8 +23,6 @@ class Player(CircleShape, pygame.sprite.Sprite):
         return [a, b, c]
 
     def draw(self, screen):
-        triangle_coords = self.triangle()
-        print("Triangle points:", triangle_coords)
         pygame.draw.polygon(screen, "white", self.triangle(), 2)
 
     def rotate(self, dt):

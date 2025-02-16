@@ -1,6 +1,7 @@
 import pygame
-from constants import PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED
+from constants import PLAYER_RADIUS, PLAYER_TURN_SPEED, PLAYER_SPEED, PLAYER_SHOOT_SPEED, SHOT_RADIUS, PLAYER_SHOOT_COOLDOWN
 from circleshape import CircleShape
+from shot import *
 
 class Player(CircleShape, pygame.sprite.Sprite):
     def __init__ (self, x, y):
@@ -8,7 +9,7 @@ class Player(CircleShape, pygame.sprite.Sprite):
         self.rotation = 0
         self.position = pygame.Vector2(x, y)  # Initialize position as a 2D vector
         pygame.sprite.Sprite.__init__(self, self.containers)
-
+        self.timer = 0
         self.image = pygame.Surface((PLAYER_RADIUS * 2, PLAYER_RADIUS * 2), pygame.SRCALPHA)
         self.image.fill((0, 0, 0, 0))  # Transparent RGBA
         self.rect = self.image.get_rect()
@@ -29,6 +30,7 @@ class Player(CircleShape, pygame.sprite.Sprite):
         self.rotation += PLAYER_TURN_SPEED * dt
 
     def update(self, dt):
+        self.timer -= dt
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_a]:
@@ -39,10 +41,17 @@ class Player(CircleShape, pygame.sprite.Sprite):
             self.move(dt)
         if keys[pygame.K_s]:
             self.move(-dt)
+        if keys[pygame.K_SPACE]:
+            self.shoot()
 
     def move(self, dt):
         forward = pygame.Vector2(0, 1).rotate(self.rotation)
         self.position += forward * PLAYER_SPEED * dt
 
     def shoot (self):
-        
+        if self.timer <= 0:
+            shot = Shot(self.position.x, self.position.y, SHOT_RADIUS)
+            shot.velocity = pygame.Vector2(0,1)
+            shot.velocity = shot.velocity.rotate(self.rotation)
+            shot.velocity = shot.velocity * PLAYER_SHOOT_SPEED
+            self.timer = PLAYER_SHOOT_COOLDOWN
